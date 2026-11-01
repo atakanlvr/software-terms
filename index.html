@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: single study column for iPad portrait; term page reads definition → flow → test top to bottom */
+/* Layout: single study column; home = modules as foldable sections, term page = definition → flow → test */
 :root{
   --bg:#EDF0F5; --card:#FFFFFF; --ink:#172033; --muted:#5A6479; --line:#D6DCE6;
   --accent:#2B46C2; --accent-soft:#E2E7FA; --on-accent:#FFFFFF;
@@ -43,7 +43,11 @@
   --bad:#FF9B92; --bad-bg:#371B1A; --bad-line:#7A3530;
   color-scheme:dark}
 *{box-sizing:border-box}
+html,body{margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6;-webkit-text-size-adjust:100%}
+button{touch-action:manipulation;-webkit-user-select:none;user-select:none}
 .wrap{max-width:800px;margin:0 auto;padding-block:28px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 h1{font-family:var(--f-display);font-weight:700;font-size:clamp(34px,6vw,50px);line-height:1.05;letter-spacing:-.02em;margin:6px 0 0;text-wrap:balance}
 h2{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:1.2;margin:0}
@@ -52,24 +56,30 @@ p{margin:0}
 .lead{color:var(--muted);margin-top:12px;max-width:62ch}
 .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:20px}
 .bar>i{display:block;height:100%;background:var(--accent);border-radius:99px}
-.list{margin-top:28px;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;padding:14px 16px;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;min-height:64px}
-.row:first-child{border-top:0}
-button.row{cursor:pointer}
-.row .n{font-family:var(--f-mono);font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
-.row .nm{display:block;font-weight:600;font-size:18px;line-height:1.3}
-.row .en{display:block;font-size:14px;color:var(--muted)}
-.row.soon .nm{color:var(--muted);font-weight:500}
-.chip{font-size:13px;line-height:1;padding:7px 11px;border-radius:99px;white-space:nowrap;font-weight:500}
-.chip.ok{background:var(--ok-bg);color:var(--ok)}
-.chip.ready{background:var(--accent-soft);color:var(--accent)}
-.chip.soon{color:var(--muted);border:1px solid var(--line)}
-.review{margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px;background:var(--card);border:1px solid var(--line);border-radius:14px}
-.review>div{min-width:0;flex:1 1 260px}
-.rt{font-weight:600;font-size:18px}
-.rs{color:var(--muted);font-size:15px;margin-top:2px}
-.btn{min-height:48px;padding:0 18px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 16px var(--f-body);cursor:pointer}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin-top:24px}
+.card{display:flex;flex-direction:column;justify-content:space-between;gap:14px;padding:18px;background:var(--card);border:1px solid var(--line);border-radius:14px;min-width:0}
+.ct{font-weight:600;font-size:18px}
+.cs{color:var(--muted);font-size:15px;margin-top:2px}
+.btn{min-height:48px;padding:0 18px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 16px var(--f-body);cursor:pointer;align-self:flex-start}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.mods{margin-top:28px;display:flex;flex-direction:column;gap:12px}
+.mod{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.mod>summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 14px;padding:16px 18px;cursor:pointer}
+.mod>summary::-webkit-details-marker{display:none}
+.mn{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.mt{font-weight:600;font-size:19px;line-height:1.3}
+.mr{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mr svg{transition:transform .2s}
+.mod[open] .mr svg{transform:rotate(180deg)}
+.mbar{grid-column:1/-1;height:4px;background:var(--line);border-radius:99px;overflow:hidden}
+.mbar>i{display:block;height:100%;background:var(--ok)}
+.mod.full .mt::after{content:" ✓";color:var(--ok)}
+.row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;padding:13px 18px;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;min-height:60px;cursor:pointer}
+.row .n{font-family:var(--f-mono);font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.row .nm{display:block;font-weight:600;font-size:17px;line-height:1.3}
+.row .en{display:block;font-size:14px;color:var(--muted)}
+.chip{font-size:13px;line-height:1;padding:7px 11px;border-radius:99px;white-space:nowrap;font-weight:500;background:var(--ok-bg);color:var(--ok)}
+.go{color:var(--muted);display:flex}
 .back{background:none;border:0;padding:8px 0;min-height:44px;color:var(--accent);font:500 16px var(--f-body);cursor:pointer;margin-bottom:10px}
 .def{margin-top:22px;padding:22px;background:var(--card);border:1px solid var(--line);border-radius:14px}
 .lbl{font-family:var(--f-mono);font-size:13px;color:var(--muted);margin-bottom:8px}
@@ -107,57 +117,27 @@ button.row{cursor:pointer}
 .dt{font-family:var(--f-display);font-weight:700;font-size:24px}
 .ds{margin-top:4px}
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:40px;padding-top:20px;border-top:1px solid var(--line)}
+.pager button{background:none;border:0;color:var(--accent);font:500 16px var(--f-body);cursor:pointer;min-height:44px;padding:0;text-align:left;max-width:48%}
+.pager button:last-child{text-align:right;margin-left:auto}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-@media (prefers-reduced-motion:reduce){.opt.shake{animation:none}}
-html,body{margin:0}
-:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-[hidden]{display:none!important}
-button{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+@media (prefers-reduced-motion:reduce){.opt.shake{animation:none}.mr svg{transition:none}}
 </style>
 </head>
 <body>
 <main id="app" class="wrap" lang="tr">
-  <p class="eyebrow">İlk 10 terim</p>
+  <p class="eyebrow">168 terim</p>
   <h1>Yazılım Terim Defteri</h1>
 </main>
 <p id="live" class="sr" aria-live="polite"></p>
-
+<script src="terms.js"></script>
 <script>
 const KEY='terim-defteri-v1';
-const TERMS=[
-{no:1,tr:'Yazılım',en:'Software',ready:true,
- def:'Yazılım, bilgisayara bir işi nasıl yapacağını adım adım söyleyen talimatlar bütünüdür.',
- analogy:'Donanım piyano ise yazılım notadır. Piyano tek başına çalmaz; nota değişince aynı piyano başka şarkı çalar.',
- flowIntro:'Basit bir giriş ekranının arkasındaki talimatlar:',
- code:[
-  'START',
-  '  GET şifre FROM kullanıcı            // girdi: dışarıdan bilgi alır',
-  '  IF şifre == kayıtlı_şifre THEN      // karar: talimata göre kontrol eder',
-  '      SHOW "Giriş başarılı"           // çıktı: sonucu gösterir',
-  '  ELSE',
-  '      SHOW "Hatalı şifre"             // çıktı: alternatif sonuç',
-  '  END IF',
-  'END'],
- note:'Bilgisayar bu satırları kendi kafasına göre değil, yazıldığı sırayla ve yazıldığı gibi uygular. Yazılım tam olarak budur.',
- qs:[
-  {t:'Aşağıdakilerden hangisi yazılımdır?',o:["Laptop'un şarj aleti",'Telefonun kamera lensi','Telefonun kamera uygulaması','Router cihazı'],c:2,
-   e:'Lens fiziksel parça, yani donanım. Uygulama ise lense ne zaman fotoğraf çekeceğini söyleyen talimatlar, yani yazılım.'},
-  {t:'Aynı bilgisayarda hem Chrome hem Excel çalışabiliyor. Bu ne anlama gelir?',o:['Chrome ve Excel aslında aynı yazılımdır','Aynı donanım, farklı talimatlarla farklı işler yapabilir','Her yazılım için ayrı bir bilgisayar gerekir','Yazılım fabrikada donanımın içine sabitlenir'],c:1,
-   e:'Piyano aynı, nota farklı. Bilgisayar değişmiyor, ona verilen talimatlar değişiyor.'},
-  {t:'Teknik bilgisi olmayan birine yazılımı en doğru hangi cümle anlatır?',o:['Bilgisayarın içindeki elektronik parçalardır','İnternete bağlanmayı sağlayan sistemdir','Bilgisayara ne yapacağını adım adım söyleyen talimatlardır','Ekranda gördüğümüz renkli görüntülerdir'],c:2,
-   e:'Parçalar donanımdır, internet bir bağlantı ortamıdır, ekran görüntüsü ise sadece çıktıdır. Yazılım talimatın kendisidir.'}
- ]},
-{no:2,tr:'Donanım',en:'Hardware'},
-{no:3,tr:'Girdi / Çıktı',en:'Input / Output'},
-{no:4,tr:'Algoritma',en:'Algorithm'},
-{no:5,tr:'Kaynak Kod',en:'Source Code'},
-{no:6,tr:'Programlama Dili',en:'Programming Language'},
-{no:7,tr:'Derleyici / Yorumlayıcı',en:'Compiler / Interpreter'},
-{no:8,tr:'Veri ve Veri Tipi',en:'Data and Data Type'},
-{no:9,tr:'Değişken',en:'Variable'},
-{no:10,tr:'Koşul',en:'Condition · IF / ELSE'}
-];
+const TERMS=[];
+MODULES.sort((a,b)=>a.no-b.no).forEach(m=>{m.terms.sort((a,b)=>a.no-b.no);m.terms.forEach(t=>{t.m=m;TERMS.push(t);});});
+const TOTAL=TERMS.length;
+const byNo=n=>TERMS.find(t=>t.no===n);
 
 let state={done:{}};
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.done)state=s;}catch(e){}
@@ -168,39 +148,46 @@ const live=document.getElementById('live');
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 const say=m=>{live.textContent='';setTimeout(()=>{live.textContent=m;},40);};
-const doneCount=()=>TERMS.filter(t=>t.ready&&state.done[t.no]).length;
+const isDone=t=>!!state.done[t.no];
+const doneCount=()=>TERMS.filter(isDone).length;
+const nextTodo=()=>TERMS.find(t=>!isDone(t));
 const ICON_OK='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span class="sr">Doğru</span>';
 const ICON_BAD='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg><span class="sr">Yanlış</span>';
+const CHEV='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+const ARROW='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+const KW=/\b(START|END IF|END FOR|END WHILE|END TRY|END FUNCTION|END|IF|THEN|ELSE IF|ELSE|FOR EACH|FOR|WHILE|REPEAT|UNTIL|RETURN|FUNCTION|CALL|GET|FROM|SHOW|ON|LOAD|STORE|IN|SET|SEND|TO|RECEIVE|TRY|CATCH|THROW|WAIT|AND|OR|NOT|DO|WITH|LOG|SAVE|READ|WRITE|RUN|NEW|CLASS|EACH|POST|PUT|PATCH|DELETE|OPTIONS|SELECT|INSERT|INTO|UPDATE|WHERE|VALUES|INNER JOIN|LEFT JOIN|JOIN|ORDER BY|GROUP BY|DESC|COUNT|BEGIN|COMMIT|ROLLBACK|CREATE|TABLE|INDEX|IMPORT|COMPONENT|WAIT|UNTIL)\b/g;
 
 function hl(line){
-  const i=line.indexOf('//');
+  const cm=line.match(/(^|\s)\/\//);
+  const i=cm?cm.index+cm[1].length:-1;
   const code=i>=0?line.slice(0,i):line;
   const com=i>=0?line.slice(i):'';
-  const out=code.split(/("[^"]*")/).map((p,k)=>k%2
-    ?'<span class="s">'+esc(p)+'</span>'
-    :esc(p).replace(/\b(START|END IF|END|IF|THEN|ELSE|GET|FROM|SHOW)\b/g,'<span class="k">$1</span>')).join('');
+  const out=code.split(/("[^"]*")/).map((p,k)=>k%2?'<span class="s">'+esc(p)+'</span>':esc(p).replace(KW,'<span class="k">$1</span>')).join('');
   return out+(com?'<span class="c">'+esc(com)+'</span>':'');
 }
 
 function renderHome(){
   const n=doneCount();
-  const pct=Math.round(n/TERMS.length*100);
-  const rows=TERMS.map(t=>{
-    const done=!!state.done[t.no];
-    const st=done?'<span class="chip ok">Tamamlandı</span>':t.ready?'<span class="chip ready">Hazır</span>':'<span class="chip soon">Sırada</span>';
-    const inner=`<span class="n">${String(t.no).padStart(2,'0')}</span><span><span class="nm">${esc(t.tr)}</span><span class="en">${esc(t.en)}</span></span>${st}`;
-    return t.ready?`<button type="button" class="row" data-go="terim-${t.no}">${inner}</button>`:`<div class="row soon">${inner}</div>`;
+  const nx=nextTodo();
+  const openMod=nx?nx.m.no:null;
+  const mods=MODULES.map(m=>{
+    const d=m.terms.filter(isDone).length;
+    const rows=m.terms.map(t=>`<button type="button" class="row" data-go="terim-${t.no}"><span class="n">${t.no}</span><span><span class="nm">${esc(t.tr)}</span><span class="en">${esc(t.en)}</span></span>${isDone(t)?'<span class="chip">Tamamlandı</span>':'<span class="go">'+ARROW+'</span>'}</button>`).join('');
+    return `<details class="mod${d===m.terms.length?' full':''}"${m.no===openMod?' open':''}><summary><span><span class="mn">Modül ${m.no} · ${m.terms[0].no}–${m.terms[m.terms.length-1].no}</span><span class="mt" style="display:block">${esc(m.name)}</span></span><span class="mr">${d}/${m.terms.length}${CHEV}</span><span class="mbar"><i style="width:${Math.round(d/m.terms.length*100)}%"></i></span></summary>${rows}</details>`;
   }).join('');
+  const resume=nx
+    ?`<div class="card"><div><p class="ct">Kaldığın yer</p><p class="cs">Terim ${nx.no} · ${esc(nx.tr)} (Modül ${nx.m.no} · ${esc(nx.m.name)})</p></div><button type="button" class="btn primary" data-go="terim-${nx.no}">Devam et</button></div>`
+    :`<div class="card"><div><p class="ct">Hepsi tamam</p><p class="cs">${TOTAL} terimin hepsini bitirdin. Karışık tekrarla taze tut.</p></div></div>`;
   const review=n>0
-    ?`<section class="review"><div><p class="rt">Karışık tekrar</p><p class="rs">Tamamladığın terimlerden karışık sorular. Şıklar her seferinde yer değiştirir.</p></div><button type="button" class="btn primary" data-go="tekrar">Tekrara başla</button></section>`
-    :`<section class="review"><div><p class="rt">Karışık tekrar</p><p class="rs">İlk terimi tamamladığında açılır.</p></div></section>`;
+    ?`<div class="card"><div><p class="ct">Karışık tekrar</p><p class="cs">Tamamladığın ${n} terimden karışık 8 soru. Şıklar her seferinde yer değiştirir.</p></div><button type="button" class="btn" data-go="tekrar">Tekrara başla</button></div>`
+    :`<div class="card"><div><p class="ct">Karışık tekrar</p><p class="cs">İlk terimi tamamladığında açılır.</p></div></div>`;
   app.innerHTML=`
-    <p class="eyebrow">İlk 10 terim · ${n}/${TERMS.length} tamamlandı</p>
+    <p class="eyebrow">${MODULES.length} modül · ${TOTAL} terim · ${n} tamamlandı</p>
     <h1>Yazılım Terim Defteri</h1>
-    <p class="lead">Her terim tek cümlelik bir tanım, pseudo code ile akış ve 3 soruluk testten oluşur. Üç soruyu da doğru bulduğunda terim tamamlanmış sayılır.</p>
-    <div class="bar" role="progressbar" aria-label="İlerleme" aria-valuemin="0" aria-valuemax="${TERMS.length}" aria-valuenow="${n}"><i style="width:${pct}%"></i></div>
-    <section class="list" aria-label="Terimler">${rows}</section>
-    ${review}`;
+    <p class="lead">Her terim tek cümlelik bir tanım, akılda kalsın notu, pseudo code ile akış ve 3 soruluk testten oluşur. Üç soruyu da doğru bulduğunda terim tamamlanmış sayılır.</p>
+    <div class="bar" role="progressbar" aria-label="Toplam ilerleme" aria-valuemin="0" aria-valuemax="${TOTAL}" aria-valuenow="${n}"><i style="width:${Math.round(n/TOTAL*100)}%"></i></div>
+    <div class="cards">${resume}${review}</div>
+    <section class="mods" aria-label="Modüller">${mods}</section>`;
 }
 
 function buildQuiz(el,qs,onDone,showTag){
@@ -220,10 +207,10 @@ function buildQuiz(el,qs,onDone,showTag){
       const b=document.createElement('button');
       b.type='button';
       b.className='opt';
-      b.innerHTML=`<span class="l">${'abcd'[pos]})</span><span class="tx">${esc(q.o[oi])}</span><span class="mk" aria-hidden="false"></span>`;
+      b.innerHTML=`<span class="l">${'abcd'[pos]})</span><span class="tx">${esc(q.o[oi])}</span><span class="mk"></span>`;
       b.addEventListener('click',()=>{
         if(locked)return;
-        if(oi===q.c){
+        if(oi===0){
           locked=true;
           b.classList.add('right');
           b.querySelector('.mk').innerHTML=ICON_OK;
@@ -237,10 +224,7 @@ function buildQuiz(el,qs,onDone,showTag){
           if(solved===total)onDone(first,total);
         }else{
           missed=true;
-          if(!b.classList.contains('wrong')){
-            b.classList.add('wrong');
-            b.querySelector('.mk').innerHTML=ICON_BAD;
-          }
+          if(!b.classList.contains('wrong')){b.classList.add('wrong');b.querySelector('.mk').innerHTML=ICON_BAD;}
           b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');
           say('Yanlış, başka bir şık dene.');
         }
@@ -252,18 +236,20 @@ function buildQuiz(el,qs,onDone,showTag){
 }
 
 function renderTerm(t){
+  const prev=byNo(t.no-1),next=byNo(t.no+1);
   app.innerHTML=`
-    <button type="button" class="back" data-go="">‹ Terimler</button>
-    <p class="eyebrow">Terim ${t.no} / ${TERMS.length} · ${esc(t.en)}</p>
+    <button type="button" class="back" data-go="">‹ Modüller</button>
+    <p class="eyebrow">Modül ${t.m.no} · ${esc(t.m.name)} · Terim ${t.no}/${TOTAL}</p>
     <h1>${esc(t.tr)}</h1>
+    <p class="eyebrow" style="margin-top:8px">${esc(t.en)}</p>
     <section class="def">
       <p class="lbl">Tanım</p>
       <p class="big">${esc(t.def)}</p>
-      <p class="analogy"><b>Akılda kalsın.</b> ${esc(t.analogy)}</p>
+      <p class="analogy"><b>Akılda kalsın.</b> ${esc(t.an)}</p>
     </section>
     <section class="sec">
       <h2>Akış</h2>
-      <p>${esc(t.flowIntro)}</p>
+      <p>${esc(t.fi)}</p>
       <pre class="code" aria-label="Pseudo code">${t.code.map(hl).join('\n')}</pre>
       <p class="note">${esc(t.note)}</p>
     </section>
@@ -272,21 +258,25 @@ function renderTerm(t){
       <p class="hint">Yanlış şık kırmızı, doğru şık yeşil yanar. Doğruyu bulana kadar deneyebilirsin.</p>
       <div id="quiz"></div>
       <div id="done"></div>
-    </section>`;
+    </section>
+    <nav class="pager" aria-label="Terimler arası geçiş">
+      ${prev?`<button type="button" data-go="terim-${prev.no}">‹ ${prev.no}. ${esc(prev.tr)}</button>`:''}
+      ${next?`<button type="button" data-go="terim-${next.no}">${next.no}. ${esc(next.tr)} ›</button>`:''}
+    </nav>`;
   buildQuiz(document.getElementById('quiz'),t.qs,(first,total)=>{
     state.done[t.no]=true;save();
-    const nx=TERMS.find(x=>x.no===t.no+1);
-    const nextBtn=nx&&nx.ready?`<button type="button" class="btn primary" data-go="terim-${nx.no}">Sonraki terim: ${esc(nx.tr)}</button>`:'';
-    const later=nx&&!nx.ready?` Sıradaki terim (${esc(nx.tr)}) bir sonraki derste eklenecek.`:'';
-    document.getElementById('done').innerHTML=`<div class="donebox" role="status"><p class="dt">${total}/${total} tamamlandı</p><p class="ds">İlk denemede doğru: ${first}/${total}.${later}</p><div class="actions">${nextBtn}<button type="button" class="btn" data-go="">Terimlere dön</button><button type="button" class="btn" data-retry>Testi yeniden çöz</button></div></div>`;
+    const modDone=t.m.terms.every(isDone);
+    const nextBtn=next?`<button type="button" class="btn primary" data-go="terim-${next.no}">Sonraki terim: ${esc(next.tr)}</button>`:'';
+    const extra=modDone?` Modül ${t.m.no} (${esc(t.m.name)}) tamamlandı.`:'';
+    document.getElementById('done').innerHTML=`<div class="donebox" role="status"><p class="dt">${total}/${total} tamamlandı</p><p class="ds">İlk denemede doğru: ${first}/${total}.${extra}</p><div class="actions">${nextBtn}<button type="button" class="btn" data-go="">Modüllere dön</button><button type="button" class="btn" data-retry>Testi yeniden çöz</button></div></div>`;
   },false);
 }
 
 function renderReview(){
-  const pool=shuffle(TERMS.filter(t=>t.ready&&state.done[t.no]).flatMap(t=>t.qs.map(q=>Object.assign({},q,{no:t.no,term:t.tr}))));
-  const qs=pool.slice(0,6);
+  const pool=shuffle(TERMS.filter(isDone).flatMap(t=>t.qs.map(q=>Object.assign({},q,{no:t.no,term:t.tr}))));
+  const qs=pool.slice(0,8);
   app.innerHTML=`
-    <button type="button" class="back" data-go="">‹ Terimler</button>
+    <button type="button" class="back" data-go="">‹ Modüller</button>
     <p class="eyebrow">Tamamlanan terimlerden · ${qs.length} soru</p>
     <h1>Karışık tekrar</h1>
     <p class="lead">Sorular ve şıklar her seferinde yer değiştirir. Cevabı şıkkın yerinden değil, anlamından bul.</p>
@@ -296,14 +286,14 @@ function renderReview(){
       <div id="done"></div>
     </section>`;
   buildQuiz(document.getElementById('quiz'),qs,(first,total)=>{
-    document.getElementById('done').innerHTML=`<div class="donebox" role="status"><p class="dt">${total}/${total} tamamlandı</p><p class="ds">İlk denemede doğru: ${first}/${total}.</p><div class="actions"><button type="button" class="btn primary" data-reshuffle>Yeniden karıştır</button><button type="button" class="btn" data-go="">Terimlere dön</button></div></div>`;
+    document.getElementById('done').innerHTML=`<div class="donebox" role="status"><p class="dt">${total}/${total} tamamlandı</p><p class="ds">İlk denemede doğru: ${first}/${total}.</p><div class="actions"><button type="button" class="btn primary" data-reshuffle>Yeniden karıştır</button><button type="button" class="btn" data-go="">Modüllere dön</button></div></div>`;
   },true);
 }
 
 function route(){
   const h=location.hash.slice(1);
   let t=null;
-  if(h.indexOf('terim-')===0)t=TERMS.find(x=>'terim-'+x.no===h&&x.ready);
+  if(h.indexOf('terim-')===0)t=byNo(parseInt(h.slice(6),10));
   if(t)renderTerm(t);
   else if(h==='tekrar'&&doneCount()>0)renderReview();
   else renderHome();
@@ -316,10 +306,10 @@ function go(h){
 
 app.addEventListener('click',e=>{
   const g=e.target.closest('[data-go]');
-  if(g){go(g.dataset.go);return;}
+  if(g){e.preventDefault();go(g.dataset.go);return;}
   if(e.target.closest('[data-reshuffle]')){renderReview();window.scrollTo(0,0);return;}
   if(e.target.closest('[data-retry]')){
-    const t=TERMS.find(x=>'terim-'+x.no===location.hash.slice(1));
+    const t=byNo(parseInt(location.hash.slice(7),10));
     if(t){renderTerm(t);const s=document.getElementById('test');if(s)s.scrollIntoView();}
   }
 });
@@ -327,6 +317,5 @@ window.addEventListener('hashchange',route);
 route();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 </script>
-
 </body>
 </html>
